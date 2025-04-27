@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "421265623000",
+    "firebase_url": "https://marcofire-default-rtdb.firebaseio.com",
+    "project_id": "marcofire",
+    "storage_bucket": "marcofire.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:421265623000:android:a3bae1ccdfaf5de899d4ad",
+        "android_client_info": {
+          "package_name": "com.example.marco"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZiKeTlxm33KqyXzV6ehnJeO_3NDwykPc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
