@@ -129,7 +129,7 @@ class _JobproviderpageState extends State<Jobproviderpage> {
         backgroundColor: const Color(0xFF123456),
         appBar: AppBar(
           title: Text(
-            '  TRANSIT',
+            '  RIT TRANSIT',
             style: TextStyle(
               color: Colors.white,
               fontSize: 35,
@@ -397,7 +397,7 @@ class _JobproviderpageState extends State<Jobproviderpage> {
         radius: radius, // Adjust size here
         child: Text(
           userData.name.isNotEmpty ? userData.name[0].toUpperCase() : '?',
-          style: TextStyle(fontSize: radius, color: Colors.blue),
+          style: TextStyle(fontSize: 26, color: Colors.blue),
         ),
       );
     }
