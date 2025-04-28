@@ -9,9 +9,9 @@ import 'MyBusPage.dart';
 import 'OtherBusesPage.dart';
 import 'AttendancePage.dart';
 import 'SeatAvailabilityPage.dart';
-import 'BoardingPage.dart'; // <<==== ADDED
-import '../login/Login.dart'; // adjust path if needed
-import '../screens/user_data.dart'; // adjust path if needed
+import 'BoardingPage.dart';
+import '../login/Login.dart';
+import '../screens/user_data.dart';
 
 class Jobproviderpage extends StatefulWidget {
   final UserData userData;
@@ -90,7 +90,7 @@ class _JobproviderpageState extends State<Jobproviderpage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Press back again to confirm exit')),
       );
-      return Future.value(false);
+      return false;
     } else {
       _backPressCounter++;
       if (_backPressCounter >= 2) {
@@ -116,7 +116,7 @@ class _JobproviderpageState extends State<Jobproviderpage> {
           SystemNavigator.pop();
         }
       }
-      return Future.value(false);
+      return false;
     }
   }
 
@@ -132,23 +132,23 @@ class _JobproviderpageState extends State<Jobproviderpage> {
             '  RIT TRANSIT',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 35,
+              fontSize: 30,
               fontWeight: FontWeight.bold,
             ),
           ),
           backgroundColor: const Color(0xFF123456),
           elevation: 0,
-          leading: null, // remove left icon
+          leading: null,
           actions: [
             GestureDetector(
               onTap: () {
-                _scaffoldKey.currentState?.openEndDrawer(); // open right drawer
+                _scaffoldKey.currentState?.openEndDrawer();
               },
-              child: _buildProfileAvatar(radius: 40), // Adjust size here
+              child: _buildProfileAvatar(radius: 30),
             ),
           ],
         ),
-        endDrawer: _buildDrawer(), // right drawer
+        endDrawer: _buildDrawer(),
         body: _buildTransitBody(),
       ),
     );
@@ -246,65 +246,64 @@ class _JobproviderpageState extends State<Jobproviderpage> {
   }
 
   Widget _buildTransitBody() {
-    return Padding(
-      padding: const EdgeInsets.all(40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(30),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(25),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 30),
-                Text(
-                  'Your bus arrives at                                ',
-                  style: TextStyle(fontSize: 30),
-                ),
-                SizedBox(height: 30),
-                Text(
-                  '7:30 AM',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 30),
-                StreamBuilder<DateTime>(
-                  stream: Stream.periodic(
-                    Duration(seconds: 1),
-                    (_) => DateTime.now(),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 10),
+                  Text('Your bus arrives at', style: TextStyle(fontSize: 24)),
+                  SizedBox(height: 10),
+                  Text(
+                    '7:30 AM',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    }
-                    if (!snapshot.hasData) {
-                      return Text('Error');
-                    }
-                    final time = DateFormat(
-                      'hh:mm:ss a',
-                    ).format(snapshot.data!);
-                    return Text(
-                      'TIME: $time',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  },
-                ),
-              ],
+                  SizedBox(height: 20),
+                  StreamBuilder<DateTime>(
+                    stream: Stream.periodic(
+                      Duration(seconds: 1),
+                      (_) => DateTime.now(),
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      }
+                      if (!snapshot.hasData) {
+                        return Text('Error');
+                      }
+                      final time = DateFormat(
+                        'hh:mm:ss a',
+                      ).format(snapshot.data!);
+                      return Text(
+                        'TIME: $time',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 70),
-          Expanded(
-            child: GridView.count(
+            const SizedBox(height: 30),
+            GridView.count(
               crossAxisCount: 2,
-              crossAxisSpacing: 25,
-              mainAxisSpacing: 25,
-              childAspectRatio: 1.2,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              childAspectRatio: 1.1,
               children: [
                 _buildMenuItem(Icons.location_on, 'My Bus', MyBusPage()),
                 _buildMenuItem(
@@ -315,7 +314,7 @@ class _JobproviderpageState extends State<Jobproviderpage> {
                 _buildMenuItem(
                   Icons.assignment,
                   'Attendance',
-                  AttendancePage(),
+                  AttendancePage(user: userData),
                 ),
                 _buildMenuItem(
                   Icons.event_seat,
@@ -324,29 +323,29 @@ class _JobproviderpageState extends State<Jobproviderpage> {
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => BoardingPage()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              minimumSize: Size(double.infinity, 70),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => BoardingPage()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                minimumSize: Size(double.infinity, 60),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+              ),
+              child: const Text(
+                'Mark as Boarded',
+                style: TextStyle(fontSize: 20, color: Colors.black),
               ),
             ),
-            child: const Text(
-              'Mark as Boarded',
-              style: TextStyle(fontSize: 22, color: Colors.black),
-            ),
-          ),
-          const SizedBox(height: 25),
-        ],
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }
@@ -359,16 +358,16 @@ class _JobproviderpageState extends State<Jobproviderpage> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 50, color: Colors.black87),
+            Icon(icon, size: 45, color: Colors.black87),
             const SizedBox(height: 10),
             Text(
               title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -387,25 +386,16 @@ class _JobproviderpageState extends State<Jobproviderpage> {
     if (userData.profileImage != null && userData.profileImage!.isNotEmpty) {
       return CircleAvatar(
         backgroundImage: FileImage(File(userData.profileImage!)),
-        radius: radius, // Adjust size here
+        radius: radius,
       );
     }
-
-    if (userData.role == 'Student') {
-      return CircleAvatar(
-        backgroundColor: Colors.grey[300],
-        radius: radius, // Adjust size here
-        child: Text(
-          userData.name.isNotEmpty ? userData.name[0].toUpperCase() : '?',
-          style: TextStyle(fontSize: 26, color: Colors.blue),
-        ),
-      );
-    }
-
     return CircleAvatar(
-      radius: radius, // Adjust size here
-      backgroundColor: Colors.grey[500],
-      child: Icon(Icons.account_circle, size: radius * 2, color: Colors.white),
+      backgroundColor: Colors.grey[300],
+      radius: radius,
+      child: Text(
+        userData.name.isNotEmpty ? userData.name[0].toUpperCase() : '?',
+        style: TextStyle(fontSize: 24, color: Colors.blue),
+      ),
     );
   }
 }

@@ -12,6 +12,8 @@ class UserData {
   String phoneNumber = '+91';
   String experience = '';
   String profileImage = '';
+  bool isPresent = false; // New field to track attendance status
+  DateTime? lastAttendanceTime; // Add this
 
   // Constructor
   UserData({
@@ -28,8 +30,10 @@ class UserData {
     this.phoneNumber = '+91',
     this.experience = '',
     this.profileImage = '',
+    this.isPresent = false, // Initialize isPresent status
   });
-// ✅ TO JSON
+
+  // ✅ TO JSON
   Map<String, dynamic> toJson() {
     return {
       'name': name,
@@ -45,6 +49,7 @@ class UserData {
       'phoneNumber': phoneNumber,
       'experience': experience,
       'profileImage': profileImage,
+      'isPresent': isPresent, // Save attendance status
     };
   }
 
@@ -64,12 +69,14 @@ class UserData {
       phoneNumber: json['phoneNumber'] ?? '+91',
       experience: json['experience'] ?? '',
       profileImage: json['profileImage'] ?? '',
+      isPresent: json['isPresent'] ?? false, // Retrieve attendance status
     );
   }
 
-  set contactImage(String contactImage) {}
-
-  set areaAddress(String areaAddress) {}
+  // Method to toggle attendance status (mark user as present/absent)
+  void toggleAttendance() {
+    isPresent = !isPresent;
+  }
 
   // Format user details for UI display
   Map<String, String> getDisplayData() {
@@ -87,10 +94,12 @@ class UserData {
       'Area': area.isNotEmpty ? area : 'Not provided',
       'Phone Number': phoneNumber.isNotEmpty ? phoneNumber : 'Not provided',
       'Experience': experience.isNotEmpty ? experience : 'Not provided',
+      'Attendance Status':
+          isPresent ? 'Present' : 'Absent', // Add attendance status
     };
   }
 
-  // Reset method
+  // Reset method to clear all user data
   void reset() {
     name = '';
     role = '';
@@ -105,5 +114,6 @@ class UserData {
     phoneNumber = '+91';
     experience = '';
     profileImage = '';
+    isPresent = false; // Reset attendance status to false
   }
 }
