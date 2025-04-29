@@ -28,7 +28,7 @@ class _AttendancePageState extends State<AttendancePage> {
       );
 
       // Check if 20 hours have passed since last attendance submission
-      if (difference.inHours >= 20) {
+      if (difference.inHours >= 24) {
         widget.user.isPresent = false;
         widget.user.lastAttendanceTime = null;
         canSubmitMorning = true;
@@ -42,7 +42,7 @@ class _AttendancePageState extends State<AttendancePage> {
         }
 
         // Check if the user has already submitted in the evening window
-        if (lastTime.hour >= 13 && lastTime.hour <= 20) {
+        if (lastTime.hour >= 13 && lastTime.hour <= 15) {
           canSubmitEvening = false;
         }
       }
@@ -56,7 +56,7 @@ class _AttendancePageState extends State<AttendancePage> {
       return currentTime.hour >= 4 && currentTime.hour <= 7;
     } else {
       // Evening time: 1 PM - 6 PM
-      return currentTime.hour >= 13 && currentTime.hour <= 20;
+      return currentTime.hour >= 13 && currentTime.hour <= 15;
     }
   }
 
@@ -82,7 +82,7 @@ class _AttendancePageState extends State<AttendancePage> {
       DateTime lastTime = widget.user.lastAttendanceTime!;
       if (lastTime.hour >= 4 && lastTime.hour <= 7) {
         canSubmitMorning = false;
-      } else if (lastTime.hour >= 13 && lastTime.hour <= 20) {
+      } else if (lastTime.hour >= 13 && lastTime.hour <= 15) {
         canSubmitEvening = false;
       }
 
