@@ -16,6 +16,15 @@ class _Page1NameRoleState extends State<Page1NameRole> {
   String? selectedRole; // Store the selected role separately for validation
 
   @override
+  void initState() {
+    super.initState();
+    selectedRole =
+        widget.userData.role.isEmpty
+            ? null
+            : widget.userData.role; // Set the initial role if already defined
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white, // Full-screen background
@@ -57,6 +66,8 @@ class _Page1NameRoleState extends State<Page1NameRole> {
                     ),
                     SizedBox(height: 15),
                     TextFormField(
+                      initialValue:
+                          widget.userData.name, // Pre-fill with existing name
                       decoration: InputDecoration(
                         hintText: 'Your Name',
                         border: OutlineInputBorder(

@@ -25,7 +25,6 @@ class Jobproviderpage extends StatefulWidget {
 class _JobproviderpageState extends State<Jobproviderpage> {
   late UserData userData;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  int _backPressCounter = 0;
   DateTime? _lastBackPressed;
 
   @override
@@ -38,7 +37,7 @@ class _JobproviderpageState extends State<Jobproviderpage> {
   void _initializePreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
-    await prefs.setBool('isdriver', false);
+    await prefs.setBool('isWorker', false);
   }
 
   Future<void> _pickImage() async {
@@ -82,42 +81,39 @@ class _JobproviderpageState extends State<Jobproviderpage> {
   }
 
   Future<bool> _onWillPop() async {
-    DateTime now = DateTime.now();
+    final now = DateTime.now();
     if (_lastBackPressed == null ||
         now.difference(_lastBackPressed!) > Duration(seconds: 2)) {
       _lastBackPressed = now;
-      _backPressCounter = 1;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Press back again to confirm exit')),
-      );
-      return false;
-    } else {
-      _backPressCounter++;
-      if (_backPressCounter >= 2) {
-        final shouldExit = await showDialog<bool>(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text('Exit App'),
-                content: Text('Are you sure you want to exit?'),
-                actions: [
-                  TextButton(
-                    child: Text('Cancel'),
-                    onPressed: () => Navigator.of(context).pop(false),
-                  ),
-                  TextButton(
-                    child: Text('Exit'),
-                    onPressed: () => Navigator.of(context).pop(true),
-                  ),
-                ],
-              ),
-        );
-        if (shouldExit == true) {
-          SystemNavigator.pop();
-        }
-      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Press back again to exit')));
       return false;
     }
+
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Exit App'),
+            content: Text('Are you sure you want to exit?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('Exit'),
+              ),
+            ],
+          ),
+    );
+
+    if (shouldExit == true) {
+      SystemNavigator.pop();
+    }
+    return false;
   }
 
   @override
@@ -128,23 +124,20 @@ class _JobproviderpageState extends State<Jobproviderpage> {
         key: _scaffoldKey,
         backgroundColor: const Color(0xFF123456),
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             '  RIT TRANSIT',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
           backgroundColor: const Color(0xFF123456),
           elevation: 0,
-          leading: null,
+          automaticallyImplyLeading: false,
           actions: [
             GestureDetector(
-              onTap: () {
-                _scaffoldKey.currentState?.openEndDrawer();
-              },
-              child: _buildProfileAvatar(radius: 30),
+              onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _buildProfileAvatar(radius: 25),
+              ),
             ),
           ],
         ),
@@ -171,24 +164,28 @@ class _JobproviderpageState extends State<Jobproviderpage> {
                   child: GestureDetector(
                     onTap: _pickImage,
                     child: Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      padding: EdgeInsets.all(6),
-                      child: Icon(Icons.edit, size: 20, color: Colors.blue),
+                      padding: const EdgeInsets.all(6),
+                      child: const Icon(
+                        Icons.edit,
+                        size: 20,
+                        color: Colors.blue,
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-            decoration: BoxDecoration(color: Colors.blue),
+            decoration: const BoxDecoration(color: Colors.blue),
           ),
           ListTile(
             leading: Icon(Icons.logout),
             title: Text('Logout'),
             onTap: () async {
-              bool shouldLogout = await showDialog(
+              final shouldLogout = await showDialog<bool>(
                 context: context,
                 builder:
                     (context) => AlertDialog(
@@ -206,7 +203,6 @@ class _JobproviderpageState extends State<Jobproviderpage> {
                       ],
                     ),
               );
-
               if (shouldLogout == true) {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 await prefs.setBool('isLoggedIn', false);
@@ -217,9 +213,9 @@ class _JobproviderpageState extends State<Jobproviderpage> {
               }
             },
           ),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
+          const Divider(),
+          const Padding(
+            padding: EdgeInsets.all(20.0),
             child: Text(
               'Profile Details',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -261,32 +257,31 @@ class _JobproviderpageState extends State<Jobproviderpage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 10),
-                  Text('Your bus arrives at', style: TextStyle(fontSize: 24)),
-                  SizedBox(height: 10),
-                  Text(
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Your bus arrives at',
+                    style: TextStyle(fontSize: 24),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
                     '7:30 AM',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   StreamBuilder<DateTime>(
                     stream: Stream.periodic(
-                      Duration(seconds: 1),
+                      const Duration(seconds: 1),
                       (_) => DateTime.now(),
                     ),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      }
-                      if (!snapshot.hasData) {
-                        return Text('Error');
-                      }
+                      if (!snapshot.hasData)
+                        return const CircularProgressIndicator();
                       final time = DateFormat(
                         'hh:mm:ss a',
                       ).format(snapshot.data!);
                       return Text(
                         'TIME: $time',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -309,7 +304,7 @@ class _JobproviderpageState extends State<Jobproviderpage> {
                 _buildMenuItem(
                   Icons.directions_bus,
                   'Other Buses',
-                  OtherBusesPage(),
+                  OtherBusesPage(userData: userData),
                 ),
                 _buildMenuItem(
                   Icons.assignment,
@@ -333,7 +328,7 @@ class _JobproviderpageState extends State<Jobproviderpage> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                minimumSize: Size(double.infinity, 60),
+                minimumSize: const Size(double.infinity, 60),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -352,9 +347,11 @@ class _JobproviderpageState extends State<Jobproviderpage> {
 
   Widget _buildMenuItem(IconData icon, String title, Widget page) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-      },
+      onTap:
+          () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => page),
+          ),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,

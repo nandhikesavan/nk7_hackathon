@@ -5,6 +5,10 @@ import 'package:nk7_hach/screens/user_data.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../login/Login.dart';
+import 'map_screen.dart';
+import 'add_bus_screen.dart';
+import 'set_bus_timing_screen.dart';
+import 'our_bus_students_screen.dart';
 
 class Workerpage extends StatefulWidget {
   final UserData userData;
@@ -19,18 +23,36 @@ class _WorkerpageState extends State<Workerpage> {
   late UserData userData;
   int _backPressCounter = 0;
   DateTime? _lastBackPressed;
+  int _selectedIndex = 0;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
     userData = widget.userData;
+
+    _pages = [
+      MapScreen(),
+      AddBusScreen(),
+      SetBusTimingScreen(),
+      OurBusStudentsScreen(),
+    ];
+
     _initializePreferences();
   }
 
   void _initializePreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
-    await prefs.setBool('isworker', true);
+    await prefs.setBool('isWorker', true);
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   Future<void> _pickImage() async {
@@ -106,7 +128,7 @@ class _WorkerpageState extends State<Workerpage> {
               ),
         );
         if (shouldExit == true) {
-          SystemNavigator.pop(); // Exit app
+          SystemNavigator.pop();
         }
       }
       return Future.value(false);
@@ -115,14 +137,12 @@ class _WorkerpageState extends State<Workerpage> {
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text('Welcome, ${userData.name}'),
+          title: Text(' ${userData.name}'),
           backgroundColor: Colors.blue,
           leading: IconButton(
             icon: _buildProfileAvatar(radius: 20),
@@ -166,26 +186,21 @@ class _WorkerpageState extends State<Workerpage> {
                 onTap: () async {
                   bool shouldLogout = await showDialog(
                     context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text("Confirm Logout"),
-                        content: Text("Are you sure you want to logout?"),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(false); // Cancel logout
-                            },
-                            child: Text("Cancel"),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(true); // Confirm logout
-                            },
-                            child: Text("Confirm"),
-                          ),
-                        ],
-                      );
-                    },
+                    builder:
+                        (context) => AlertDialog(
+                          title: Text("Confirm Logout"),
+                          content: Text("Are you sure you want to logout?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: Text("Confirm"),
+                            ),
+                          ],
+                        ),
                   );
 
                   if (shouldLogout == true) {
@@ -228,8 +243,27 @@ class _WorkerpageState extends State<Workerpage> {
             ],
           ),
         ),
-        body: Center(
-          child: Text('Home Screen', style: TextStyle(fontSize: 18)),
+        body: _pages[_selectedIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.directions_bus),
+              label: 'Add Bus',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.access_time),
+              label: 'Set Timing',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.people),
+              label: 'Students',
+            ),
+          ],
         ),
       ),
     );

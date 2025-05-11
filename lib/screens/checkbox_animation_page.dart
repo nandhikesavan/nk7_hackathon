@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:nk7_hach/Pages/workerpage.dart';
-import 'package:nk7_hach/Pages/jobproviderpage.dart';
+import 'package:nk7_hach/Pages/drivers.dart';
+import 'package:nk7_hach/Pages/students.dart';
 import 'package:nk7_hach/screens/user_data.dart';
 
 class CheckboxAnimationPage extends StatefulWidget {

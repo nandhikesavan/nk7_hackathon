@@ -21,13 +21,11 @@ class _AttendancePageState extends State<AttendancePage> {
   void initState() {
     super.initState();
 
-    // Check user's previous attendance time
     if (widget.user.lastAttendanceTime != null) {
       Duration difference = DateTime.now().difference(
         widget.user.lastAttendanceTime!,
       );
 
-      // Check if 20 hours have passed since last attendance submission
       if (difference.inHours >= 24) {
         widget.user.isPresent = false;
         widget.user.lastAttendanceTime = null;
@@ -36,12 +34,9 @@ class _AttendancePageState extends State<AttendancePage> {
       } else {
         DateTime lastTime = widget.user.lastAttendanceTime!;
 
-        // Check if the user has already submitted in the morning window
         if (lastTime.hour >= 4 && lastTime.hour <= 7) {
           canSubmitMorning = false;
         }
-
-        // Check if the user has already submitted in the evening window
         if (lastTime.hour >= 13 && lastTime.hour <= 15) {
           canSubmitEvening = false;
         }
@@ -49,48 +44,47 @@ class _AttendancePageState extends State<AttendancePage> {
     }
   }
 
-  // Check if the current time is within the allowed morning and evening window
   bool isInTimeWindow(DateTime currentTime, {required bool isMorning}) {
     if (isMorning) {
-      // Morning time: 4 AM - 7 AM
       return currentTime.hour >= 4 && currentTime.hour <= 7;
     } else {
-      // Evening time: 1 PM - 6 PM
       return currentTime.hour >= 13 && currentTime.hour <= 15;
     }
   }
 
-  // Submit attendance
   void submitAttendance() {
     if (selectedAttendance != null) {
       setState(() {
-        widget.user.isPresent = selectedAttendance!.contains(
-          'Present',
-        ); // <-- Fixed
+        widget.user.isPresent = selectedAttendance!.contains('Present');
         widget.user.lastAttendanceTime = DateTime.now();
       });
 
-      // Decrease available seats if present
-      if (widget.user.isPresent && globals.availableSeats > 0) {
-        globals.availableSeats--;
+      // Decrease gender-specific seat availability only if marked present
+      if (widget.user.isPresent) {
+        if (widget.user.gender.toLowerCase() == "male" &&
+            globals.availableMaleSeats > 0) {
+          globals.availableMaleSeats--;
+        } else if (widget.user.gender.toLowerCase() == "female" &&
+            globals.availableFemaleSeats > 0) {
+          globals.availableFemaleSeats--;
+        }
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Attendance marked as $selectedAttendance')),
       );
 
-      DateTime lastTime = widget.user.lastAttendanceTime!;
-      if (lastTime.hour >= 4 && lastTime.hour <= 7) {
+      DateTime now = DateTime.now();
+      if (now.hour >= 4 && now.hour <= 7) {
         canSubmitMorning = false;
-      } else if (lastTime.hour >= 13 && lastTime.hour <= 15) {
+      } else if (now.hour >= 13 && now.hour <= 15) {
         canSubmitEvening = false;
       }
 
-      // Navigate to SeatAvailabilityPage after submit
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => SeatAvailabilityPage()),
+          MaterialPageRoute(builder: (context) => const SeatAvailabilityPage()),
         );
       });
     } else {
@@ -100,7 +94,6 @@ class _AttendancePageState extends State<AttendancePage> {
     }
   }
 
-  // Build attendance option container
   Widget buildAttendanceOption(String title, Color color, IconData icon) {
     return GestureDetector(
       onTap: () {
@@ -116,7 +109,7 @@ class _AttendancePageState extends State<AttendancePage> {
                   : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color, width: 2),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               blurRadius: 8,
@@ -157,7 +150,7 @@ class _AttendancePageState extends State<AttendancePage> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text('Mark Attendance'),
+        title: const Text('Mark Attendance'),
         centerTitle: true,
         elevation: 0,
       ),
@@ -166,55 +159,42 @@ class _AttendancePageState extends State<AttendancePage> {
         child: Column(
           children: [
             Text(
-              '${widget.user.name}',
-              style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+              widget.user.name,
+              style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
 
-            if (isMorningTime && canSubmitMorning)
+            if (isMorningTime && canSubmitMorning) ...[
               buildAttendanceOption(
                 'Present (Morning)',
                 Colors.green,
                 Icons.check_circle_outline,
               ),
-            if (isMorningTime && canSubmitMorning)
               buildAttendanceOption(
                 'Absent (Morning)',
                 Colors.red,
                 Icons.cancel_outlined,
               ),
-            if (isEveningTime && canSubmitEvening)
+            ],
+            if (isEveningTime && canSubmitEvening) ...[
               buildAttendanceOption(
                 'Present (Evening)',
                 Colors.green,
                 Icons.check_circle_outline,
               ),
-            if (isEveningTime && canSubmitEvening)
               buildAttendanceOption(
                 'Absent (Evening)',
                 Colors.red,
                 Icons.cancel_outlined,
               ),
+            ],
 
             const Spacer(),
 
             if ((isMorningTime && canSubmitMorning) ||
                 (isEveningTime && canSubmitEvening))
               ElevatedButton(
-                onPressed: () {
-                  if ((isMorningTime && canSubmitMorning) ||
-                      (isEveningTime && canSubmitEvening)) {
-                    submitAttendance();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Not in allowed time window for submission',
-                        ),
-                      ),
-                    );
-                  }
-                },
+                onPressed: submitAttendance,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.teal,
                   padding: const EdgeInsets.symmetric(

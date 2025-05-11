@@ -1,15 +1,11 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nk7_hach/Pages/jobproviderpage.dart';
-
-import 'package:nk7_hach/Pages/workerpage.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Pages/students.dart'; // Job provider page
+import '../Pages/drivers.dart'; // Worker page
 import '../login/Login.dart';
-import '../screens/name_job.dart';
 import '../screens/user_data.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -20,7 +16,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  UserData? userData;
   @override
   void initState() {
     super.initState();
@@ -30,21 +25,30 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    bool isworker = prefs.getBool('isworker') ?? false;
+    bool isWorker =
+        prefs.getBool('isWorker') ?? false; // Flag for worker status
     String? userDataJson = prefs.getString('userData');
+
+    UserData? userData;
     if (userDataJson != null) {
       Map<String, dynamic> jsonMap = jsonDecode(userDataJson);
       userData = UserData.fromJson(jsonMap);
     }
 
-    Future.delayed(const Duration(seconds: 1), () {
-      isLoggedIn
-          ? (isworker
-              ? Get.off(Workerpage(userData: userData!))
-              : Get.off(Jobproviderpage(userData: userData!)))
-          // Get.off(Page1NameRole(userData: UserData())))
-          : Get.off(LoginScreen());
-    });
+    await Future.delayed(const Duration(seconds: 2)); // Optional splash delay
+
+    if (isLoggedIn && userData != null) {
+      if (isWorker) {
+        // If user is a worker, navigate to the WorkerPage
+        Get.off(() => Workerpage(userData: userData!));
+      } else {
+        // If user is a job provider, navigate to the JobProviderPage
+        Get.off(() => Jobproviderpage(userData: userData!));
+      }
+    } else {
+      // If not logged in, navigate to the LoginScreen
+      Get.off(() => const LoginScreen());
+    }
   }
 
   @override
@@ -52,15 +56,12 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 250,
-              height: 250,
-              child: Image.asset("assets/images/splash.jpeg"),
-            ),
-          ],
+        child: SizedBox(
+          width: 250,
+          height: 250,
+          child: Image.asset(
+            "assets/images/splash.jpeg",
+          ), // Splash screen image
         ),
       ),
     );

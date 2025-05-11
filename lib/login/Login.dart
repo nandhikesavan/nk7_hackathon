@@ -39,9 +39,12 @@ class _LoginScreenState extends State<LoginScreen> {
           isLoading = false;
           errorMessage = '';
         });
-        Navigator.of(context).pushReplacement(
+        Navigator.push(
+          context,
           MaterialPageRoute(
-            builder: (context) => Page1NameRole(userData: UserData()),
+            builder:
+                (context) =>
+                    Page1NameRole(userData: UserData(name: '', gender: '')),
           ),
         );
       } else {

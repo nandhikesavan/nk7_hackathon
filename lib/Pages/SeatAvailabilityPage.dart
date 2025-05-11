@@ -19,8 +19,11 @@ class _SeatAvailabilityPageState extends State<SeatAvailabilityPage> {
     [true, true, false, true, true],
   ];
 
-  // Track which seats are booked
-  final List<List<bool>> bookedSeats = List.generate(
+  final List<List<bool>> bookedMaleSeats = List.generate(
+    6,
+    (_) => List.generate(5, (_) => false),
+  );
+  final List<List<bool>> bookedFemaleSeats = List.generate(
     6,
     (_) => List.generate(5, (_) => false),
   );
@@ -29,34 +32,40 @@ class _SeatAvailabilityPageState extends State<SeatAvailabilityPage> {
   void initState() {
     super.initState();
 
-    // Pre-book seats based on attendance
-    int totalSeats = seatLayout.fold(
-      0,
-      (sum, row) => sum + row.where((seat) => seat).length,
-    );
-    int seatsToBook = totalSeats - globals.availableSeats;
+    int totalMaleSeats = 6 * 2; // 6 rows * 2 left seats (per row)
+    int totalFemaleSeats = 6 * 2; // 6 rows * 2 right seats (per row)
 
-    outerLoop:
+    int malesToBook = totalMaleSeats - globals.availableMaleSeats;
+    int femalesToBook = totalFemaleSeats - globals.availableFemaleSeats;
+
+    // Book Male Seats (left side)
+    outerMale:
     for (int i = 0; i < seatLayout.length; i++) {
-      for (int j = 0; j < seatLayout[i].length; j++) {
-        if (seatLayout[i][j]) {
-          if (seatsToBook > 0) {
-            bookedSeats[i][j] = true; // Mark seat as booked (present)
-            seatsToBook--;
-          } else {
-            break outerLoop;
-          }
+      for (int j = 0; j < 2; j++) {
+        if (seatLayout[i][j] && malesToBook > 0) {
+          bookedMaleSeats[i][j] = true;
+          malesToBook--;
         }
+        if (malesToBook <= 0) break outerMale;
+      }
+    }
+
+    // Book Female Seats (right side)
+    outerFemale:
+    for (int i = 0; i < seatLayout.length; i++) {
+      for (int j = 3; j < 5; j++) {
+        if (seatLayout[i][j] && femalesToBook > 0) {
+          bookedFemaleSeats[i][j] = true;
+          femalesToBook--;
+        }
+        if (femalesToBook <= 0) break outerFemale;
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    int totalSeats = seatLayout.fold(
-      0,
-      (sum, row) => sum + row.where((seat) => seat).length,
-    );
+    int totalSeats = 6 * 4;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Seat Availability'), centerTitle: true),
@@ -66,8 +75,13 @@ class _SeatAvailabilityPageState extends State<SeatAvailabilityPage> {
           children: [
             const SizedBox(height: 10),
             Text(
-              'Available Seats: ${globals.availableSeats} / $totalSeats',
+              'Available Seats: ${globals.availableMaleSeats + globals.availableFemaleSeats} / $totalSeats',
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              'Males: ${globals.availableMaleSeats} | Females: ${globals.availableFemaleSeats}',
+              style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 20),
             Expanded(
@@ -83,23 +97,21 @@ class _SeatAvailabilityPageState extends State<SeatAvailabilityPage> {
                     int row = index ~/ 5;
                     int col = index % 5;
 
-                    if (row >= seatLayout.length ||
-                        col >= seatLayout[row].length) {
-                      return const SizedBox();
-                    }
-
-                    bool isSeat = seatLayout[row][col];
-
-                    if (!isSeat) {
+                    if (!seatLayout[row][col]) {
                       return const SizedBox(); // Aisle
                     }
 
-                    bool isBooked = bookedSeats[row][col];
-                    Color seatColor =
-                        isBooked
-                            ? Colors
-                                .red // Booked (Present)
-                            : Colors.green; // Available (Absent)
+                    bool isBookedMale = bookedMaleSeats[row][col];
+                    bool isBookedFemale = bookedFemaleSeats[row][col];
+
+                    Color seatColor;
+                    if (isBookedMale) {
+                      seatColor = Colors.blue; // Booked Male
+                    } else if (isBookedFemale) {
+                      seatColor = Colors.pink; // Booked Female
+                    } else {
+                      seatColor = Colors.green; // Available
+                    }
 
                     return Container(
                       decoration: BoxDecoration(
@@ -107,7 +119,7 @@ class _SeatAvailabilityPageState extends State<SeatAvailabilityPage> {
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.black),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.event_seat,
                         color: Colors.white,
                         size: 30,

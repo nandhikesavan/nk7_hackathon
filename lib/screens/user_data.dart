@@ -1,25 +1,39 @@
 class UserData {
-  String name = '';
-  String role = ''; // Worker or Job Provider
-  String gender = '';
+  // Basic user info
+  String name;
+  String gender;
+  bool isPresent;
+  DateTime? lastAttendanceTime;
+
+  // Optional ID field
+  String? userId;
+
+  // Additional fields
+  String role;
   DateTime? dob;
-  String country = 'India';
-  String state = '';
-  String district = '';
-  String city = '';
-  String address = '';
-  String area = '';
-  String phoneNumber = '+91';
-  String experience = '';
-  String profileImage = '';
-  bool isPresent = false; // New field to track attendance status
-  DateTime? lastAttendanceTime; // Add this
+  String country;
+  String state;
+  String district;
+  String city;
+  String address;
+  String area;
+  String phoneNumber;
+  String experience;
+  String profileImage;
+
+  // ✅ Bus Details
+  String busNumber;
+  String busDriverName;
+  String busNumberPlate;
 
   // Constructor
   UserData({
-    this.name = '',
+    required this.name,
+    required this.gender,
+    this.isPresent = false,
+    this.lastAttendanceTime,
+    this.userId,
     this.role = '',
-    this.gender = '',
     this.dob,
     this.country = 'India',
     this.state = '',
@@ -30,16 +44,21 @@ class UserData {
     this.phoneNumber = '+91',
     this.experience = '',
     this.profileImage = '',
-    this.isPresent = false, // Initialize isPresent status
+    this.busNumber = '',
+    this.busDriverName = '',
+    this.busNumberPlate = '',
   });
 
   // ✅ TO JSON
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'role': role,
       'gender': gender,
-      'dob': dob?.toIso8601String(), // Convert DateTime to string
+      'isPresent': isPresent,
+      'lastAttendanceTime': lastAttendanceTime?.toIso8601String(),
+      'userId': userId,
+      'role': role,
+      'dob': dob?.toIso8601String(),
       'country': country,
       'state': state,
       'district': district,
@@ -49,7 +68,9 @@ class UserData {
       'phoneNumber': phoneNumber,
       'experience': experience,
       'profileImage': profileImage,
-      'isPresent': isPresent, // Save attendance status
+      'busNumber': busNumber,
+      'busDriverName': busDriverName,
+      'busNumberPlate': busNumberPlate,
     };
   }
 
@@ -57,9 +78,15 @@ class UserData {
   factory UserData.fromJson(Map<String, dynamic> json) {
     return UserData(
       name: json['name'] ?? '',
-      role: json['role'] ?? '',
       gender: json['gender'] ?? '',
-      dob: json['dob'] != null ? DateTime.parse(json['dob']) : null,
+      isPresent: json['isPresent'] ?? false,
+      lastAttendanceTime:
+          json['lastAttendanceTime'] != null
+              ? DateTime.tryParse(json['lastAttendanceTime'])
+              : null,
+      userId: json['userId'],
+      role: json['role'] ?? '',
+      dob: json['dob'] != null ? DateTime.tryParse(json['dob']) : null,
       country: json['country'] ?? 'India',
       state: json['state'] ?? '',
       district: json['district'] ?? '',
@@ -69,23 +96,28 @@ class UserData {
       phoneNumber: json['phoneNumber'] ?? '+91',
       experience: json['experience'] ?? '',
       profileImage: json['profileImage'] ?? '',
-      isPresent: json['isPresent'] ?? false, // Retrieve attendance status
+      busNumber: json['busNumber'] ?? '',
+      busDriverName: json['busDriverName'] ?? '',
+      busNumberPlate: json['busNumberPlate'] ?? '',
     );
   }
 
-  // Method to toggle attendance status (mark user as present/absent)
+  // ✅ Toggle attendance status
   void toggleAttendance() {
     isPresent = !isPresent;
+    lastAttendanceTime = DateTime.now();
   }
 
-  // Format user details for UI display
+  // ✅ Format user data for display
   Map<String, String> getDisplayData() {
     return {
       'Name': name.isNotEmpty ? name : 'Not provided',
-      'Role': role.isNotEmpty ? role : 'Not provided',
       'Gender': gender.isNotEmpty ? gender : 'Not provided',
+      'Role': role.isNotEmpty ? role : 'Not provided',
       'Date of Birth':
-          dob != null ? '${dob!.toLocal()}'.split(' ')[0] : 'Not provided',
+          dob != null
+              ? '${dob!.day.toString().padLeft(2, '0')}-${dob!.month.toString().padLeft(2, '0')}-${dob!.year}'
+              : 'Not provided',
       'Country': country,
       'State': state.isNotEmpty ? state : 'Not provided',
       'District': district.isNotEmpty ? district : 'Not provided',
@@ -94,16 +126,26 @@ class UserData {
       'Area': area.isNotEmpty ? area : 'Not provided',
       'Phone Number': phoneNumber.isNotEmpty ? phoneNumber : 'Not provided',
       'Experience': experience.isNotEmpty ? experience : 'Not provided',
-      'Attendance Status':
-          isPresent ? 'Present' : 'Absent', // Add attendance status
+      'Attendance Status': isPresent ? 'Present' : 'Absent',
+      'Last Attendance Time':
+          lastAttendanceTime != null
+              ? '${lastAttendanceTime!.day.toString().padLeft(2, '0')}-${lastAttendanceTime!.month.toString().padLeft(2, '0')}-${lastAttendanceTime!.year} ${lastAttendanceTime!.hour}:${lastAttendanceTime!.minute}'
+              : 'Not recorded',
+      'Bus Number': busNumber.isNotEmpty ? busNumber : 'Not provided',
+      'Bus Driver Name':
+          busDriverName.isNotEmpty ? busDriverName : 'Not provided',
+      'Bus Number Plate':
+          busNumberPlate.isNotEmpty ? busNumberPlate : 'Not provided',
     };
   }
 
-  // Reset method to clear all user data
+  // ✅ Reset all fields
   void reset() {
     name = '';
-    role = '';
     gender = '';
+    isPresent = false;
+    lastAttendanceTime = null;
+    role = '';
     dob = null;
     country = 'India';
     state = '';
@@ -114,6 +156,9 @@ class UserData {
     phoneNumber = '+91';
     experience = '';
     profileImage = '';
-    isPresent = false; // Reset attendance status to false
+    busNumber = '';
+    busDriverName = '';
+    busNumberPlate = '';
+    userId = null;
   }
 }
